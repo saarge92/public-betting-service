@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: bets_postgres
+    restart: unless-stopped
+
+    # Мапим переменные из .env в родные переменные контейнера Postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+
+    # Пробрасываем порт наружу (внешний:внутренний)
+    # Внутри контейнера Postgres всегда слушает 5432, но снаружи он будет доступен как 6432
+    ports:
+      - "${DB_PORT}:5432"
+
+    # Создаем постоянное хранилище (Volume), чтобы данные не удалялись при перезапуске контейнера
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
