@@ -569,10 +569,11 @@ dependencies = [
  "bcrypt",
  "dotenvy",
  "env_logger",
+ "log",
  "sea-orm",
  "serde",
+ "serde_json",
  "shaku",
- "shaku_actix",
  "thiserror",
  "uuid",
 ]
@@ -1273,17 +1274,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cecba35d7ad927e23624b22ad55235f2239cfa44fd10428eecbeba6d6a717718"
 
 [[package]]
-name = "futures-macro"
-version = "0.3.32"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e835b70203e41293343137df5c0664546da5745f82ec9b84d40be8336958447b"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.117",
-]
-
-[[package]]
 name = "futures-sink"
 version = "0.3.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1303,7 +1293,6 @@ checksum = "389ca41296e6190b48053de0321d02a77f32f8a5d2461dd38762c0593805c6d6"
 dependencies = [
  "futures-core",
  "futures-io",
- "futures-macro",
  "futures-sink",
  "futures-task",
  "memchr",
@@ -2605,7 +2594,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2906,17 +2895,6 @@ dependencies = [
  "anymap2",
  "once_cell",
  "shaku_derive",
-]
-
-[[package]]
-name = "shaku_actix"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4bf94dfba474de32f1cbacecced756c6c22ba1b20522bd1e2e8c0a4377a1557"
-dependencies = [
- "actix-web",
- "futures-util",
- "shaku",
 ]
 
 [[package]]
@@ -3307,10 +3285,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.3.4",
+ "getrandom 0.4.2",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

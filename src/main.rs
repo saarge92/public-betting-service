@@ -1,3 +1,4 @@
+use crate::api::user;
 use crate::container::AppContainer;
 use crate::repository::{UserRepository, UserRepositoryParameters};
 use actix_web::middleware::Logger;
@@ -13,7 +14,7 @@ pub mod operation;
 pub mod repository;
 
 #[actix_web::main]
-async fn main(){
+async fn main() {
     dotenvy::dotenv().ok();
     let log_level = env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
 
@@ -27,7 +28,6 @@ async fn main(){
         .await
         .expect("Ошибка подключения к БД");
 
-    // Создаем DI контейнер и передаем туда динамический параметр (подключение к БД)
     let container = AppContainer::builder()
         .with_component_parameters::<UserRepository>(UserRepositoryParameters { db: db_conn })
         .build();
@@ -35,15 +35,17 @@ async fn main(){
     let shared_container = Arc::new(container);
     let server_port = env::var("SERVER_PORT").unwrap_or_else(|_| "8080".to_string());
 
+    // 2. ЗАПИСЬ В ЛОГ: выводим сообщение о старте
+    log::info!("Сервер успешно запущен на порту {}", server_port);
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
-            // Делимся контейнером с Actix-web
             .app_data(web::Data::from(shared_container.clone()))
-        //.route("/api/register", web::post().to(crate::api::register_user))
+            .service(web::scope("/api").configure(user::routes::init_routes))
     })
-        .bind(("127.0.0.1", server_port.parse::<u16>().unwrap()))
-        .expect("Не удалось привязать порт к серверу")
-        .run()
-        .await.expect("Ошибка вовремя запуска сервера");
+    .bind(("127.0.0.1", server_port.parse::<u16>().unwrap()))
+    .expect("Не удалось привязать порт к серверу")
+    .run()
+    .await
+    .expect("Ошибка вовремя запуска сервера");
 }

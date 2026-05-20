@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
 pub struct RegisterUserDto {
     pub username: String,
     pub email: String,

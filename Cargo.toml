@@ -13,4 +13,5 @@ thiserror = "2.0.18"
 uuid = { version = "1.23.1", features = ["v4"] }
 env_logger = "0.11.10"
 shaku = { version = "0.6.2", features = ["derive"] }
-shaku_actix = "0.2.0"
+log = "0.4.29"
+serde_json = "1.0.149"

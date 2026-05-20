@@ -22,10 +22,11 @@ pub struct UserService {
 #[async_trait::async_trait]
 impl UserServiceTrait for UserService {
     async fn register(&self, user_dto: RegisterUserDto) -> Result<User, AppError> {
-        if let Some(_) = self
+        if self
             .user_repo
             .find_user_by_username_or_email(user_dto.username.clone(), user_dto.email.clone())
             .await?
+            .is_some()
         {
             return Err(UserError::AlreadyExists.into());
         }
