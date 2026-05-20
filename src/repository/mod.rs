@@ -1,4 +1,3 @@
 mod user_repository;
 
-pub use user_repository::UserRepository;
-pub use user_repository::UserRepositoryTrait;
+pub use user_repository::*;

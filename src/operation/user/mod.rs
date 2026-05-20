@@ -5,3 +5,4 @@ mod errors;
 
 pub use dto::RegisterUserDto;
 pub use errors::*;
+pub use user_service::*;
