@@ -3,8 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
                                      username TEXT NOT NULL UNIQUE,
                                      email TEXT NOT NULL UNIQUE,
                                      password_hash TEXT NOT NULL,
-                                     role TEXT NOT NULL DEFAULT 'User',
-                                     is_active INTEGER NOT NULL DEFAULT 1,
+                                     is_active BOOLEAN NOT NULL DEFAULT TRUE,
                                      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
@@ -21,7 +20,7 @@ CREATE TABLE IF NOT EXISTS matches (
                                        league TEXT NOT NULL,
                                        home_team TEXT NOT NULL,
                                        away_team TEXT NOT NULL,
-                                       starts_at TEXT NOT NULL,
+                                       starts_at TIMESTAMP NOT NULL,
                                        status TEXT NOT NULL DEFAULT 'Scheduled',
                                        home_score INTEGER,
                                        away_score INTEGER,
@@ -56,7 +55,7 @@ CREATE TABLE IF NOT EXISTS bets (
     potential_win REAL NOT NULL,
     actual_win REAL,
     status TEXT NOT NULL DEFAULT 'Pending',
-    placed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    placed_at TIMESTAMP NOT NULL DEFAULT NOW(),
     settled_at TEXT
     );
 
