@@ -10,10 +10,12 @@ dotenvy = "0.15.7"
 sea-orm = { version = "2.0.0-rc.38", features = ["runtime-tokio-native-tls", "sqlx-postgres"] }
 serde = { version = "1.0.228", features = ["derive"] }
 thiserror = "2.0.18"
-uuid = { version = "1.23.1", features = ["v4"] }
 env_logger = "0.11.10"
 shaku = { version = "0.6.2", features = ["derive"] }
 log = "0.4.29"
 serde_json = "1.0.149"
 validator = { version = "0.20.0", features = ["derive"] }
-actix-web-validator = "5.0"
+jsonwebtoken = "9.3"
+argon2 = "0.5"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.23.1", features = ["v4"] }

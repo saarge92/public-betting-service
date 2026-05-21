@@ -9,4 +9,7 @@ pub enum UserError {
 
     #[error("Неверный пароль")]
     WrongPassword,
+
+    #[error("Неверный логин или пароль")]
+    Unauthorized
 }
