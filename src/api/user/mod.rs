@@ -1,4 +1,4 @@
-pub mod user;
 pub mod routes;
+mod user_handlers;
 
-pub use user::*;
+pub use user_handlers::*;

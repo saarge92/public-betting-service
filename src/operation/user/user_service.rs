@@ -2,7 +2,9 @@ use crate::domain::{AppError, User};
 use crate::operation::user::RegisterUserDto;
 use crate::operation::user::errors::UserError;
 use crate::repository::UserRepositoryTrait;
-use bcrypt::{DEFAULT_COST, hash};
+use argon2::password_hash::SaltString;
+use argon2::password_hash::rand_core::OsRng;
+use argon2::{Argon2, PasswordHasher};
 use sea_orm::prelude::async_trait;
 use shaku::{Component, Interface};
 use std::sync::Arc;
@@ -31,8 +33,14 @@ impl UserServiceTrait for UserService {
             return Err(UserError::AlreadyExists.into());
         }
 
-        let password_hash = hash(user_dto.password_raw.clone(), DEFAULT_COST)
-            .map_err(|e| AppError::Crypto(e.to_string()))?;
+        // 1. Генерируем соль автоматически через OsRng (она гарантированно будет правильной длины)
+        let salt = SaltString::generate(&mut OsRng);
+
+        let argon2 = Argon2::default();
+        let password_hash = argon2
+            .hash_password(user_dto.password_raw.as_bytes(), &salt)
+            .map_err(|e| AppError::Internal(format!("Ошибка хэширования: {}", e)))?
+            .to_string();
 
         let new_user = self
             .user_repo

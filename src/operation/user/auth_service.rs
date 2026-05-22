@@ -1,13 +1,14 @@
+use crate::config::AppConfig;
 use crate::domain::AppError;
 use crate::operation::user::UserError;
 use crate::operation::user::dto::{AuthResponseDto, Claims, LoginDto};
 use crate::repository::UserRepositoryTrait;
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
+use chrono::{Duration, Utc};
+use jsonwebtoken::{EncodingKey, Header, encode};
 use sea_orm::prelude::async_trait::async_trait;
 use shaku::{Component, Interface};
 use std::sync::Arc;
-use chrono::{Duration, Utc};
-use jsonwebtoken::{encode, EncodingKey, Header};
 
 #[async_trait]
 pub trait AuthUserServiceTrait: Interface + Send + Sync {
@@ -17,6 +18,8 @@ pub trait AuthUserServiceTrait: Interface + Send + Sync {
 #[derive(Component)]
 #[shaku(interface = AuthUserServiceTrait)]
 pub struct AuthService {
+    config: AppConfig,
+
     #[shaku(inject)]
     user_repo: Arc<dyn UserRepositoryTrait>,
 }
@@ -29,7 +32,7 @@ impl AuthUserServiceTrait for AuthService {
             .find_user_by_username_or_email(login_dto.user.clone(), login_dto.user.clone())
             .await?;
 
-        let user = user.ok_or_else(|| UserError::Unauthorized.into())?;
+        let user = user.ok_or(UserError::Unauthorized)?;
 
         let parsed_hash = PasswordHash::new(&user.password_hash)
             .map_err(|e| AppError::Internal(e.to_string()))?;
@@ -41,9 +44,17 @@ impl AuthUserServiceTrait for AuthService {
             return Err(UserError::Unauthorized.into());
         }
 
-        // 3. Генерируем JWT Token
+        Ok(AuthResponseDto {
+            token: self.sign_token(&user)?,
+            token_type: "Bearer".to_string(),
+        })
+    }
+}
+
+impl AuthService {
+    fn sign_token(&self, user: &crate::domain::User) -> Result<String, AppError> {
         let expiration = Utc::now()
-            .checked_add_signed(Duration::hours(24)) // Токен на 24 часа
+            .checked_add_signed(Duration::hours(24))
             .expect("valid timestamp")
             .timestamp();
 
@@ -55,15 +66,10 @@ impl AuthUserServiceTrait for AuthService {
         let token = encode(
             &Header::default(),
             &claims,
-            &EncodingKey::from_secret(jwt_secret.as_bytes()),
-        ).map_err(|e| {
-            log::error!("Ошибка генерации JWT: {:?}", e);
-            AppError::Internal
-        })?;
+            &EncodingKey::from_secret(self.config.jwt_secret.as_bytes()),
+        )
+        .map_err(|e| AppError::Internal(format!("Ошибка генерации JWT: {}", e)))?;
 
-        Ok(AuthResponseDto {
-            token,
-            token_type: "Bearer".to_string(),
-        })
+        Ok(token)
     }
 }

@@ -19,3 +19,5 @@ jsonwebtoken = "9.3"
 argon2 = "0.5"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.23.1", features = ["v4"] }
+envy = "0.4.2"
+password-hash = "0.6.1"

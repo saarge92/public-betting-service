@@ -20,10 +20,7 @@ pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}
 
-// ==========================================
-// ВОТ ОНА, МАГИЯ RUST: Создаем красивые имена
-// ==========================================
-pub type User = Model;            // Теперь User — это синоним Model
-pub type UserEntity = Entity;      // UserEntity — синоним Entity
-pub type UserActiveModel = ActiveModel; // UserActiveModel — синоним ActiveModel
-pub type UserColumn = Column;      // UserColumn — синоним Column
+pub type User = Model;
+pub type UserEntity = Entity;
+pub type UserActiveModel = ActiveModel;
+pub type UserColumn = Column;
