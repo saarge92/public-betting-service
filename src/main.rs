@@ -1,13 +1,17 @@
 use crate::api::user;
+use crate::config::load_config;
 use crate::container::AppContainer;
+use crate::operation::user::auth_service::{AuthService, AuthServiceParameters};
 use crate::repository::{UserRepository, UserRepositoryParameters};
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer, web};
+use env_logger::Builder;
 use sea_orm::{Database, DbConn};
 use std::env;
 use std::sync::Arc;
 
 pub mod api;
+pub mod config;
 mod container;
 mod domain;
 pub mod operation;
@@ -18,10 +22,9 @@ async fn main() {
     dotenvy::dotenv().ok();
     let log_level = env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
 
-    unsafe {
-        std::env::set_var("RUST_LOG", log_level);
-    }
-    env_logger::init();
+    Builder::new().parse_filters(&log_level).init();
+
+    let config = load_config();
 
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL в .env не найден");
     let db_conn: DbConn = Database::connect(&db_url)
@@ -30,6 +33,9 @@ async fn main() {
 
     let container = AppContainer::builder()
         .with_component_parameters::<UserRepository>(UserRepositoryParameters { db: db_conn })
+        .with_component_parameters::<AuthService>(AuthServiceParameters {
+            config: config.clone(),
+        })
         .build();
 
     let shared_container = Arc::new(container);

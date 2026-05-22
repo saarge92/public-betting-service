@@ -11,5 +11,5 @@ pub enum UserError {
     WrongPassword,
 
     #[error("Неверный логин или пароль")]
-    Unauthorized
+    Unauthorized,
 }

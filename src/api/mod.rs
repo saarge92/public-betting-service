@@ -1,13 +1,12 @@
 pub mod user;
 
-use std::future::{ready, Ready};
-use std::ops::Deref;
-use actix_web::{web, FromRequest, HttpRequest};
-use actix_web::dev::Payload;
-use shaku::HasProvider;
-pub use user::*;
 use crate::container::AppContainer;
-
+use actix_web::dev::Payload;
+use actix_web::{FromRequest, HttpRequest, web};
+use shaku::HasProvider;
+use std::future::{Ready, ready};
+use std::ops::Deref;
+pub use user::*;
 
 // Наша чистая обертка вокруг хэндлера
 pub struct Inject<T>(Box<T>);
@@ -37,12 +36,16 @@ where
                 Err(e) => {
                     log::error!("Ошибка сборки зависимости в DI контейнере: {:?}", e);
                     // Возвращаем 500 ошибку, если контейнер не смог собраться
-                    ready(Err(actix_web::error::ErrorInternalServerError("DI compilation error")))
+                    ready(Err(actix_web::error::ErrorInternalServerError(
+                        "DI compilation error",
+                    )))
                 }
             }
         } else {
             log::error!("AppContainer не найден в app_data. Проверь main.rs!");
-            ready(Err(actix_web::error::ErrorInternalServerError("DI container missing")))
+            ready(Err(actix_web::error::ErrorInternalServerError(
+                "DI container missing",
+            )))
         }
     }
 }
