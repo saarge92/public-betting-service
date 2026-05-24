@@ -1,7 +1,7 @@
 use crate::domain::{User, UserActiveModel, UserColumn, UserEntity};
 use crate::operation::user::RegisterUserDto;
+use chrono::Utc;
 use sea_orm::prelude::{Uuid, async_trait};
-use sea_orm::sea_query::prelude::Utc;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, DbConn, DbErr, EntityTrait, QueryFilter, Set,
 };
@@ -66,7 +66,8 @@ impl UserRepositoryTrait for UserRepository {
     }
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, DbErr> {
-        UserEntity::find_by_id(id)
+        UserEntity::find()
+            .filter(UserColumn::Id.eq(id)) // Используем фильтр по колонке напрямую
             .one(&self.db)
             .await
     }

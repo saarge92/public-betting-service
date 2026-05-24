@@ -1,3 +1,4 @@
+use crate::api::wallet::response::WalletResponseDto;
 use crate::container::AppContainer;
 use crate::domain::AppError;
 use crate::operation::wallet::create::dto::CreateWalletDto;
@@ -7,6 +8,7 @@ use shaku::Provider;
 use std::error::Error;
 use std::sync::Arc;
 use uuid::Uuid;
+
 pub struct WalletController {
     create_wallet_service: Arc<dyn CreateWalletServiceTrait>,
 }
@@ -23,10 +25,11 @@ impl WalletController {
         current_user_id: Uuid,
         request: web::Json<CreateWalletDto>,
     ) -> Result<HttpResponse, AppError> {
-        self.create_wallet_service
+        let wallet = self
+            .create_wallet_service
             .create(request.into_inner(), current_user_id)
             .await?;
-        Ok(HttpResponse::Ok().finish())
+        Ok(HttpResponse::Ok().json(WalletResponseDto::from(wallet)))
     }
 }
 

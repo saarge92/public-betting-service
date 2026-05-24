@@ -1,4 +1,5 @@
-use crate::operation::user::auth_service::{AuthService, AuthUserServiceTrait};
+use crate::container::AppContainer;
+use crate::operation::user::auth_service::AuthUserServiceTrait;
 use actix_web::dev::Payload;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::http::header::AUTHORIZATION;
@@ -6,9 +7,8 @@ use actix_web::{FromRequest, HttpRequest, web};
 use futures_util::FutureExt;
 use futures_util::future::BoxFuture;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use shaku::HasComponent;
-use crate::container::AppContainer;
+use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
@@ -27,7 +27,7 @@ impl FromRequest for Claims {
                 return async {
                     Err(ErrorUnauthorized("Контейнер зависимостей не найден"))
                 }
-                    .boxed();
+                .boxed();
             }
         };
 

@@ -16,7 +16,7 @@ pub trait WalletRepositoryTrait: Interface + Send + Sync {
 #[shaku(interface = WalletRepositoryTrait)]
 pub struct WalletRepository {
     #[shaku(default)]
-    db_conn: DbConn,
+    db: DbConn,
 }
 
 #[async_trait]
@@ -30,7 +30,7 @@ impl WalletRepositoryTrait for WalletRepository {
             currency: Set(dto.currency),
         };
 
-        let wallet = entity.insert(&self.db_conn).await?;
+        let wallet = entity.insert(&self.db).await?;
 
         Ok(wallet)
     }

@@ -2,6 +2,7 @@ use crate::api::{user, wallet};
 use crate::config::load_config;
 use crate::container::AppContainer;
 use crate::operation::user::auth_service::{AuthService, AuthServiceParameters};
+use crate::repository::wallet::{WalletRepository, WalletRepositoryParameters};
 use crate::repository::{UserRepository, UserRepositoryParameters};
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer, web};
@@ -33,7 +34,12 @@ async fn main() {
         .expect("Ошибка подключения к БД");
 
     let container = AppContainer::builder()
-        .with_component_parameters::<UserRepository>(UserRepositoryParameters { db: db_conn })
+        .with_component_parameters::<UserRepository>(UserRepositoryParameters {
+            db: db_conn.clone(),
+        })
+        .with_component_parameters::<WalletRepository>(WalletRepositoryParameters {
+            db: db_conn.clone(),
+        })
         .with_component_parameters::<AuthService>(AuthServiceParameters {
             config: config.clone(),
         })
