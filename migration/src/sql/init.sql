@@ -9,10 +9,12 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS wallets (
                                        id UUID PRIMARY KEY,
-                                       user_id UUID NOT NULL UNIQUE REFERENCES users(id),
-    balance REAL NOT NULL DEFAULT 0.0,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
+                                       user_id UUID NOT NULL REFERENCES users(id),
+    balance NUMERIC(15,2) DEFAULT 0.0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    currency VARCHAR(3) NOT NULL DEFAULT 'RUB',
+    CONSTRAINT unique_user_currency UNIQUE (user_id, currency)
+);
 
 CREATE TABLE IF NOT EXISTS matches (
                                        id UUID PRIMARY KEY,

@@ -5,9 +5,8 @@ edition = "2024"
 
 [dependencies]
 actix-web = "4.13.0"
-bcrypt = "0.19.1"
 dotenvy = "0.15.7"
-sea-orm = { version = "2.0.0-rc.38", features = ["runtime-tokio-native-tls", "sqlx-postgres"] }
+sea-orm = { version = "2.0.0-rc.38", features = ["runtime-tokio-native-tls", "sqlx-postgres", "with-rust_decimal"] }
 serde = { version = "1.0.228", features = ["derive"] }
 thiserror = "2.0.18"
 env_logger = "0.11.10"
@@ -21,3 +20,5 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.23.1", features = ["v4"] }
 envy = "0.4.2"
 password-hash = "0.6.1"
+rust_decimal = "1.42.0"
+futures-util = "0.3.32"

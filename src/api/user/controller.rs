@@ -7,12 +7,12 @@ use shaku::Provider;
 use std::error::Error;
 use std::sync::Arc;
 
-pub struct UserHandler {
+pub struct UserController {
     user_service: Arc<dyn UserServiceTrait>,
     auth_service: Arc<dyn AuthUserServiceTrait>,
 }
 
-impl UserHandler {
+impl UserController {
     pub fn new(
         user_service: Arc<dyn UserServiceTrait>,
         auth_service: Arc<dyn AuthUserServiceTrait>,
@@ -42,8 +42,8 @@ impl UserHandler {
     }
 }
 
-impl Provider<AppContainer> for UserHandler {
-    type Interface = UserHandler;
+impl Provider<AppContainer> for UserController {
+    type Interface = UserController;
 
     fn provide(container: &AppContainer) -> Result<Box<Self::Interface>, Box<dyn Error>> {
         use shaku::HasComponent;
@@ -51,6 +51,6 @@ impl Provider<AppContainer> for UserHandler {
         let user_service: Arc<dyn UserServiceTrait> = container.resolve();
         let auth_service: Arc<dyn AuthUserServiceTrait> = container.resolve();
 
-        Ok(Box::new(UserHandler::new(user_service, auth_service)))
+        Ok(Box::new(UserController::new(user_service, auth_service)))
     }
 }

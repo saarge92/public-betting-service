@@ -1,3 +1,4 @@
+use crate::operation::wallet::errors::WalletError;
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
 use thiserror::Error;
@@ -6,6 +7,9 @@ use thiserror::Error;
 pub enum AppError {
     #[error("Ошибка пользователя: {0}")]
     User(#[from] crate::operation::user::UserError),
+
+    #[error(transparent)]
+    Wallet(#[from] WalletError),
 
     #[error("Ошибка базы данных: {0}")]
     Database(#[from] sea_orm::DbErr),
@@ -28,6 +32,10 @@ impl ResponseError for AppError {
             AppError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::Crypto(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::Wallet(wallet_error) => match wallet_error {
+                WalletError::UserWalletAlreadyExists => StatusCode::CONFLICT,
+                _ => StatusCode::BAD_REQUEST,
+            },
         }
     }
 
@@ -53,6 +61,9 @@ impl ResponseError for AppError {
                 "error": self.to_string()
             })),
             AppError::Internal(_) => HttpResponse::build(status).json(serde_json::json!({
+                "error": self.to_string()
+            })),
+            AppError::Wallet(_) => HttpResponse::build(status).json(serde_json::json!({
                 "error": self.to_string()
             })),
         }

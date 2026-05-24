@@ -1,18 +1,21 @@
+use crate::api::middlewares::auth::Claims;
 use crate::config::AppConfig;
 use crate::domain::AppError;
 use crate::operation::user::UserError;
-use crate::operation::user::dto::{AuthResponseDto, Claims, LoginDto};
+use crate::operation::user::dto::{AuthResponseDto, LoginDto};
 use crate::repository::UserRepositoryTrait;
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use chrono::{Duration, Utc};
-use jsonwebtoken::{EncodingKey, Header, encode};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, encode};
 use sea_orm::prelude::async_trait::async_trait;
 use shaku::{Component, Interface};
 use std::sync::Arc;
+use uuid::Uuid;
 
 #[async_trait]
 pub trait AuthUserServiceTrait: Interface + Send + Sync {
     async fn login(&self, login_dto: LoginDto) -> Result<AuthResponseDto, AppError>;
+    async fn authorize_token(&self, token: &str) -> Result<Claims, actix_web::Error>;
 }
 
 #[derive(Component)]
@@ -48,6 +51,34 @@ impl AuthUserServiceTrait for AuthService {
             token: self.sign_token(&user)?,
             token_type: "Bearer".to_string(),
         })
+    }
+
+    async fn authorize_token(&self, token: &str) -> Result<Claims, actix_web::Error> {
+        use actix_web::error::ErrorUnauthorized;
+
+        let secret = self.config.jwt_secret.as_bytes();
+        let token_data = jsonwebtoken::decode::<Claims>(
+            token,
+            &DecodingKey::from_secret(secret),
+            &Validation::default(),
+        )
+        .map_err(|_| ErrorUnauthorized("Невалидный токен"))?;
+
+        let claims = token_data.claims;
+
+        let user_id = Uuid::parse_str(&claims.sub)
+            .map_err(|_| AppError::Internal("Неверный формат UUID".to_string()))?;
+
+        let user_option = self
+            .user_repo
+            .find_by_id(user_id)
+            .await
+            .map_err(|e| ErrorUnauthorized(format!("Ошибка базы данных: {}", e)))?;
+
+        match user_option {
+            Some(_) => Ok(claims),
+            None => Err(ErrorUnauthorized("Пользователь не существует")),
+        }
     }
 }
 

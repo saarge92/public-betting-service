@@ -1,4 +1,4 @@
-use crate::api::user;
+use crate::api::{user, wallet};
 use crate::config::load_config;
 use crate::container::AppContainer;
 use crate::operation::user::auth_service::{AuthService, AuthServiceParameters};
@@ -14,6 +14,7 @@ pub mod api;
 pub mod config;
 mod container;
 mod domain;
+pub mod infrastructure;
 pub mod operation;
 pub mod repository;
 
@@ -47,7 +48,11 @@ async fn main() {
         App::new()
             .wrap(Logger::default())
             .app_data(web::Data::from(shared_container.clone()))
-            .service(web::scope("/api").configure(user::routes::init_routes))
+            .service(
+                web::scope("/api")
+                    .configure(user::routes::init_routes)
+                    .configure(wallet::routes::init_routes),
+            )
     })
     .bind(("127.0.0.1", server_port.parse::<u16>().unwrap()))
     .expect("Не удалось привязать порт к серверу")

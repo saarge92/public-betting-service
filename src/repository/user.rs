@@ -20,6 +20,8 @@ pub trait UserRepositoryTrait: Interface + Send + Sync {
         username: String,
         email: String,
     ) -> Result<Option<User>, DbErr>;
+
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, DbErr>;
 }
 
 #[derive(Component)]
@@ -59,6 +61,12 @@ impl UserRepositoryTrait for UserRepository {
                     .add(UserColumn::Username.eq(username))
                     .add(UserColumn::Email.eq(email)),
             )
+            .one(&self.db)
+            .await
+    }
+
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, DbErr> {
+        UserEntity::find_by_id(id)
             .one(&self.db)
             .await
     }

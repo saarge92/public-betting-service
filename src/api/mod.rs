@@ -1,4 +1,6 @@
+pub mod middlewares;
 pub mod user;
+pub mod wallet;
 
 use crate::container::AppContainer;
 use actix_web::dev::Payload;
@@ -8,10 +10,8 @@ use std::future::{Ready, ready};
 use std::ops::Deref;
 pub use user::*;
 
-// Наша чистая обертка вокруг хэндлера
 pub struct Inject<T>(Box<T>);
 
-// Позволяет использовать Inject<T> как обычный хэндлер (вызывать методы через точку)
 impl<T> Deref for Inject<T> {
     type Target = T;
     fn deref(&self) -> &Self::Target {
@@ -19,7 +19,6 @@ impl<T> Deref for Inject<T> {
     }
 }
 
-// Реализуем FromRequest для автоматической сборки в роутах
 impl<T> FromRequest for Inject<T>
 where
     AppContainer: HasProvider<T>,
@@ -29,7 +28,6 @@ where
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        // 1. Достаем контейнер из app_data сервера
         if let Some(container) = req.app_data::<web::Data<AppContainer>>() {
             match HasProvider::provide(container.get_ref()) {
                 Ok(handler) => ready(Ok(Inject(handler))),

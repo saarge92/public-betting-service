@@ -1,3 +1,6 @@
-mod user_repository;
+pub(crate) mod dto;
+mod user;
 
-pub use user_repository::*;
+pub mod wallet;
+
+pub use user::*;

@@ -33,9 +33,3 @@ pub struct AuthResponseDto {
     pub token: String,
     pub token_type: String,
 }
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Claims {
-    pub sub: String,
-    pub exp: usize,
-}

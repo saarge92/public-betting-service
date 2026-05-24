@@ -1,17 +1,17 @@
-use crate::api::{Inject, UserHandler};
+use crate::api::{Inject, UserController};
 use crate::domain::AppError;
 use crate::operation::user::{LoginDto, RegisterUserDto};
 use actix_web::{HttpResponse, web};
 
 pub async fn register_user(
-    handler: Inject<UserHandler>,
+    handler: Inject<UserController>,
     request: web::Json<RegisterUserDto>,
 ) -> Result<HttpResponse, AppError> {
     handler.register(request).await
 }
 
 pub async fn login(
-    handler: Inject<UserHandler>,
+    handler: Inject<UserController>,
     request: web::Json<LoginDto>,
 ) -> Result<HttpResponse, AppError> {
     handler.login(request).await
