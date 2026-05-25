@@ -8,6 +8,7 @@ use shaku::Provider;
 use std::error::Error;
 use std::sync::Arc;
 use uuid::Uuid;
+use validator::Validate;
 
 pub struct WalletController {
     create_wallet_service: Arc<dyn CreateWalletServiceTrait>,
@@ -25,9 +26,14 @@ impl WalletController {
         current_user_id: Uuid,
         request: web::Json<CreateWalletDto>,
     ) -> Result<HttpResponse, AppError> {
+        let dto = request.into_inner();
+        if let Err(errors) = dto.validate() {
+            return Err(AppError::Validation(errors.to_string()));
+        }
+
         let wallet = self
             .create_wallet_service
-            .create(request.into_inner(), current_user_id)
+            .create(dto, current_user_id)
             .await?;
         Ok(HttpResponse::Ok().json(WalletResponseDto::from(wallet)))
     }

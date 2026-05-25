@@ -19,6 +19,9 @@ pub enum AppError {
 
     #[error("Внутренняя ошибка сервера: {0}")]
     Internal(String),
+
+    #[error("Ошибка валидации {0}")]
+    Validation(String),
 }
 
 impl ResponseError for AppError {
@@ -36,6 +39,7 @@ impl ResponseError for AppError {
                 WalletError::UserWalletAlreadyExists => StatusCode::CONFLICT,
                 _ => StatusCode::BAD_REQUEST,
             },
+            AppError::Validation(_) => StatusCode::BAD_REQUEST,
         }
     }
 
@@ -65,6 +69,9 @@ impl ResponseError for AppError {
             })),
             AppError::Wallet(_) => HttpResponse::build(status).json(serde_json::json!({
                 "error": self.to_string()
+            })),
+            AppError::Validation(error) => HttpResponse::build(status).json(serde_json::json!({
+                "error": error
             })),
         }
     }
