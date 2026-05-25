@@ -37,7 +37,6 @@ impl CreateWalletServiceTrait for CreateWalletService {
                 if is_unique_violation(&db_err) {
                     AppError::from(WalletError::UserWalletAlreadyExists)
                 } else {
-                    // Логируем или прокидываем внутреннюю ошибку сервера
                     AppError::Internal(db_err.to_string())
                 }
             })

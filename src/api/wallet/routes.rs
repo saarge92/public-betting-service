@@ -16,6 +16,21 @@ pub async fn create_wallet_route(
         .map_err(|_| AppError::Internal("Неверный формат UUID".to_string()))?;
     wallet_controller.create(user_id, payload).await
 }
+
+pub async fn get_wallets_route(
+    wallet_controller: Inject<WalletController>,
+    claims: Claims,
+) -> Result<HttpResponse, AppError> {
+    let user_id = Uuid::parse_str(&claims.sub)
+        .map_err(|_| AppError::Internal("Неверный формат UUID".to_string()))?;
+
+    wallet_controller.list(user_id).await
+}
+
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/wallets").route("", web::post().to(create_wallet_route)));
+    cfg.service(
+        web::scope("/wallets")
+            .route("", web::post().to(create_wallet_route))
+            .route("", web::get().to(get_wallets_route)),
+    );
 }

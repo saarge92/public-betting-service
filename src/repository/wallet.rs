@@ -1,15 +1,16 @@
-use crate::domain::wallet::{Wallet, WalletActiveModel};
+use crate::domain::wallet::{Wallet, WalletActiveModel, WalletColumn, WalletEntity};
 use crate::repository::dto::CreateWalletDto;
 use chrono::Utc;
 use rust_decimal::Decimal;
 use sea_orm::prelude::async_trait::async_trait;
-use sea_orm::{ActiveModelTrait, DbConn, DbErr, Set};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DbConn, DbErr, EntityTrait, QueryFilter, Set};
 use shaku::{Component, Interface};
 use uuid::Uuid;
 
 #[async_trait]
 pub trait WalletRepositoryTrait: Interface + Send + Sync {
     async fn create(&self, dto: CreateWalletDto) -> Result<Wallet, DbErr>;
+    async fn user_wallets(&self, user_id: Uuid) -> Result<Vec<Wallet>, DbErr>;
 }
 
 #[derive(Component)]
@@ -33,5 +34,12 @@ impl WalletRepositoryTrait for WalletRepository {
         let wallet = entity.insert(&self.db).await?;
 
         Ok(wallet)
+    }
+
+    async fn user_wallets(&self, user_id: Uuid) -> Result<Vec<Wallet>, DbErr> {
+        WalletEntity::find()
+            .filter(WalletColumn::UserId.eq(user_id))
+            .all(&self.db)
+            .await
     }
 }
